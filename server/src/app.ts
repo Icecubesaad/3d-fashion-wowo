@@ -7,9 +7,18 @@ import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
-const app = express();
+// Allow the frontend (separate Railway service) to call this API with
+// credentials (the httpOnly auth cookie). `*` is rejected for credentialed
+// requests, so we set the explicit origin + credentials:true.
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
-app.use(cors());
+const app = express();
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));

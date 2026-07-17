@@ -9,10 +9,13 @@ const router = Router();
 router.use(attachUser);
 
 const COOKIE_NAME = "token";
+// Cross-origin: the client and server are separate Railway services, so the
+// auth cookie must be sameSite:"none" + secure to ride along on credentialed
+// fetch() calls from the frontend origin.
 const COOKIE_OPTS = {
   httpOnly: true,
-  sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production",
+  sameSite: "none" as const,
+  secure: true,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
