@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth";
 import {
   motion,
   useScroll,
@@ -76,6 +77,8 @@ const NAV_LINKS: { label: string; to: string }[] = [
 
 function TopNav() {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-hairline/60 bg-canvas/85 backdrop-blur-md">
       <div className="mx-auto flex h-full max-w-content items-center justify-between px-6">
@@ -99,15 +102,34 @@ function TopNav() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link to="/login" className="text-sm font-semibold text-ink">
-            Sign in
-          </Link>
-          <Link
-            to="/signup"
-            className="inline-flex h-11 items-center justify-center rounded-md bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-[#1f1f1f]"
-          >
-            Try free
-          </Link>
+          {user ? (
+            <>
+              <span className="text-sm font-semibold text-ink">
+                Hi, {user.name.split(" ")[0]}
+              </span>
+              <button
+                onClick={() => {
+                  void logout();
+                  navigate("/");
+                }}
+                className="inline-flex h-11 items-center justify-center rounded-md bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-[#1f1f1f]"
+              >
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm font-semibold text-ink">
+                Sign in
+              </Link>
+              <Link
+                to="/signup"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-ink px-5 text-sm font-semibold text-white transition-colors hover:bg-[#1f1f1f]"
+              >
+                Try free
+              </Link>
+            </>
+          )}
         </div>
 
         <button

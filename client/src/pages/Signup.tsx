@@ -1,17 +1,39 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight, Shirt, User } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shirt, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const { refresh } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    toast.success("Account created! (demo — no backend wired yet)");
-    navigate("/shop");
+    if (password !== confirm) {
+      toast.error("Passwords don't match");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { user } = await authApi.register({ name, email, password });
+      await refresh();
+      toast.success(`Account created — welcome, ${user.name}!`);
+      navigate("/shop");
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -37,11 +59,7 @@ export default function Signup() {
             </p>
             <div className="mt-8 grid grid-cols-3 gap-3">
               {["#ff4d8b", "#1a3a3a", "#b8a4ed"].map((c) => (
-                <div
-                  key={c}
-                  className="h-20 rounded-xl"
-                  style={{ background: c }}
-                />
+                <div key={c} className="h-20 rounded-xl" style={{ background: c }} />
               ))}
             </div>
           </div>
@@ -76,6 +94,8 @@ export default function Signup() {
                   <Input
                     id="name"
                     required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Alex Doe"
                     className="pl-9"
                   />
@@ -90,6 +110,8 @@ export default function Signup() {
                     id="email"
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="pl-9"
                   />
@@ -105,6 +127,9 @@ export default function Signup() {
                       id="password"
                       type="password"
                       required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       className="pl-9"
                     />
@@ -118,6 +143,9 @@ export default function Signup() {
                       id="confirm"
                       type="password"
                       required
+                      minLength={6}
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
                       placeholder="••••••••"
                       className="pl-9"
                     />
@@ -125,9 +153,20 @@ export default function Signup() {
                 </div>
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                Create account
-                <ArrowRight className="size-4" />
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <>
+                    Create account
+                    <ArrowRight className="size-4" />
+                  </>
+                )}
               </Button>
             </form>
 

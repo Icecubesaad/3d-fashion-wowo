@@ -1,18 +1,46 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight, Shirt } from "lucide-react";
+import { Mail, Lock, ArrowRight, Shirt, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { refresh } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Frontend only — no backend. Stub the action.
-    toast.success("Welcome back! (demo — no backend wired yet)");
-    navigate("/shop");
+    setLoading(true);
+    try {
+      const { user } = await authApi.login({ email, password });
+      await refresh();
+      toast.success(`Welcome back, ${user.name}!`);
+      navigate("/shop");
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleForgot() {
+    if (!email) {
+      toast.error("Enter your email first, then tap Forgot?");
+      return;
+    }
+    try {
+      await authApi.forgotPassword(email);
+      toast.success("If that email exists, a reset link is on its way.");
+    } catch {
+      toast.error("Could not request reset. Try again.");
+    }
   }
 
   return (
@@ -38,11 +66,11 @@ export default function Login() {
             </p>
             <div className="mt-8 rounded-xl bg-surface-soft p-6">
               <p className="text-caption-uppercase text-muted-soft">
-                Demo account
+                Your data is saved
               </p>
               <p className="mt-1 text-sm text-body">
-                Use anything you like — this is a frontend-only build, so no
-                credentials are checked.
+                Accounts and saved profiles live in our secure database, so
+                you can pick up right where you left off on any device.
               </p>
             </div>
           </div>
@@ -78,6 +106,8 @@ export default function Login() {
                     id="email"
                     type="email"
                     required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="pl-9"
                   />
@@ -89,6 +119,7 @@ export default function Login() {
                   <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
+                    onClick={handleForgot}
                     className="text-xs font-medium text-muted hover:text-ink"
                   >
                     Forgot?
@@ -100,15 +131,28 @@ export default function Login() {
                     id="password"
                     type="password"
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="pl-9"
                   />
                 </div>
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                Sign in
-                <ArrowRight className="size-4" />
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <>
+                    Sign in
+                    <ArrowRight className="size-4" />
+                  </>
+                )}
               </Button>
             </form>
 
