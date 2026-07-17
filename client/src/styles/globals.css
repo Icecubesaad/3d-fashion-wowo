@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Clay design system tokens (see DESIGN.md).
+ * shadcn HSL variables are remapped onto Clay's cream-canvas palette so the
+ * existing ui/* primitives inherit the brand automatically.
+ */
+@layer base {
+  :root {
+    /* Clay canvas is cream-tinted white (#fffaf0) */
+    --background: 40 100% 97%;
+    --foreground: 0 0% 4%;
+    --card: 40 100% 97%;
+    --card-foreground: 0 0% 4%;
+    --popover: 40 100% 97%;
+    --popover-foreground: 0 0% 4%;
+    /* Primary CTAs are near-black (#0a0a0a) */
+    --primary: 0 0% 4%;
+    --primary-foreground: 0 0% 100%;
+    /* Secondary = cream surface-card (#f5f0e0) */
+    --secondary: 48 45% 92%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 48 45% 92%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 48 45% 92%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    /* Hairline (#e5e5e5) */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 4%;
+    --radius: 0.75rem; /* rounded.md = 12px */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-canvas text-body antialiased;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Plain Black substitute: Inter 500 with negative letter-spacing */
+  .font-display {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+  }
+}
+
+@layer utilities {
+  /* Horizontal marquee for the garment strip */
+  .marquee-track {
+    animation: marquee 40s linear infinite;
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Gentle float for decorative clay shapes */
+  .clay-float {
+    animation: clay-float 7s ease-in-out infinite;
+  }
+  @keyframes clay-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(-2deg);
+    }
+  }
+
+  /* Grain-free soft shadow used sparingly on hover-elevated cards */
+  .shadow-clay {
+    box-shadow: 0 24px 48px -24px rgba(10, 10, 10, 0.18);
+  }
+
+  .bg-grid-hairline {
+    background-image: linear-gradient(#e5e5e5 1px, transparent 1px),
+      linear-gradient(90deg, #e5e5e5 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
