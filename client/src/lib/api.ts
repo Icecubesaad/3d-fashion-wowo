@@ -1,7 +1,9 @@
 // Thin fetch wrapper for the auth API (Module 1: User Module).
-// Auth uses httpOnly cookies set by the server, so credentials: "include"
+// Auth uses httpOny cookies set by the server, so credentials: "include"
 // is required for the browser to send/receive the session cookie.
-const BASE = import.meta.env.VITE_API_BASE ?? "/api";
+// VITE_API_BASE is injected at build time by Vite from the env var.
+// Falls back to "/api" (same-origin, handled by the dev proxy in dev).
+const BASE = import.meta.env.VITE_API_BASE?.trim() || "/api";
 
 async function request<T>(
   path: string,
